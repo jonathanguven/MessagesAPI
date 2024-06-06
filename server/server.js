@@ -6,33 +6,52 @@ const port = 3000
 
 app.use(bodyParser.json())
 
-let clients = []
+let clients = {}
+let userId = 0
 
 app.get('/listen', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  console.log('Client connected')
+  const room = req.query.room || 'general'
 
-  clients.push(res)
+  if (!clients[room]) {
+    clients[room] = []
+  }
+
+  userId += 1
+  let id = userId
+  clients[room].push({ id, res })
+
+  res.write(`Client connected to room ${room} as user ${id} (total: ${clients[room].length})\n\n`)
 
   req.on('close', () => {
+    console.log(`User disconnected from room ${room}`)
+    clients[room] = clients[room].filter(client => client.id !== id)
     res.end()
   })
 });
 
-const sendToClients = () => {
-  clients.forEach(client => {
-    client.write('data: ' + JSON.stringify({ 'message': 'hi :3' }) + '\n\n')
+const sendToClients = (room, message) => {
+  if (!clients[room]) {
+    return
+  }
+  clients[room].forEach(client => {
+    client.res.write(`data: ${JSON.stringify({ message })}\n\n`)
   })
 }
 
 app.post('/send', (req, res) => {
-  if (req.body.apikey == '123') {
-    sendToClients()
-    res.json({ 'yay': clients.length })
-  } else res.json({ 'asd': 'asd' })
+  const { apikey, room, message } = req.body
+  console.log(message)
+  if (apikey == '123') {
+    const chatRoom = room || 'general'
+    sendToClients(chatRoom, message)
+    res.json({ 'clients': clients[room]?.length || 0 })
+  } else {
+    res.json({ 'error': 'invalid API key' })
+  }
 });
 
 app.listen(port, () => {
