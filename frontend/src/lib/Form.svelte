@@ -25,8 +25,6 @@
     }
 
     sent = true;
-    room = "";
-    key = "";
     message = "";
 
     setTimeout(() => {
@@ -89,12 +87,15 @@
 </form>
 {#if sent}
   {#if errorMessage}
-    <div class="my-4 p-2 bg-red-100 text-red-700 rounded-md shadow-md">
+    <div class="my-4 p-2 min-h-12 bg-red-100 text-red-700 rounded-md shadow-md">
       {errorMessage}
     </div>
   {:else}
-    <div class="my-4 p-2 bg-green-100 text-green-700 rounded-md shadow-md">
+    <div class="my-4 p-2 min-h-12 bg-green-100 text-green-700 rounded-md shadow-md">
       Message sent to {numMembers} member{numMembers !== 1 ? "s" : ""}
     </div>
   {/if}
+{:else}
+  <div class="my-4 p-2 min-h-12">
+  </div>
 {/if}
