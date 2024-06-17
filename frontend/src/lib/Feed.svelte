@@ -18,7 +18,7 @@
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      messages.update(msgs => [...msgs, data.message]);
+      messages.update(msgs => [...msgs, data.id + ": " + data.message]);
     };
 
     eventSource.onerror = (event) => {

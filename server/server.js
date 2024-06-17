@@ -56,7 +56,7 @@ const sendToClients = (room, message) => {
     return
   }
   clients[room].forEach(client => {
-    client.res.write(`data: ${JSON.stringify({ message })}\n\n`)
+    client.res.write(`data: ${JSON.stringify({ id: client.id, message })}\n\n`)
   })
 }
 
